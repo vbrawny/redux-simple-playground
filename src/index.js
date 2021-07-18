@@ -4,71 +4,92 @@ import {
   compose,
   //ActionCreator,
   applyMiddleware,
-  bindActionCreators
+  bindActionCreators,
+  combineReducers
 } from "redux";
 
 //INITIAL STATE
-const initialState = { value: 0 };
-
-//ACTION - flux standard actions
-//redux toolkit
-//const incrementAction = { type: "counter/increment" };
-// //what if i do a spelling mistake
-// const incrementAction = { type: "INCREMENT" };
-
-// //REDUCER
-// const reducer = (state = initialState, action) => {
-//   //what if i do a spelling mistake
-//   if (action.type === "INCREMENT") {
-//     return { state: state.valye + 1 };
-//   }
-// };
-const INCREMENT = "INCREMENT";
-const incrementAction = { type: INCREMENT };
-//ACTION ActionCreator
-const increment = () => ({ type: INCREMENT });
-
-const ADD = "ADD";
-const add = (amount) => ({ type: ADD, payload: amount });
-
-//REDUCER
-
-const reducer = (state = initialState, action) => {
-  if (action.type === INCREMENT) {
-    return { value: state["value"] + 1 };
-  }
-  if (action.type === ADD) {
-    return { value: state.value + action.payload };
-  }
+const initialState = {
+  users: [
+    { id: 1, name: "cristiano" },
+    { id: 2, name: "neymaar" },
+    { id: 3, name: "messi" }
+  ],
+  tasks: [
+    { title: "file the tps reports" },
+    { title: "order more energy drinks" }
+  ]
 };
 
-//STORE
-//one option to pass initial state here
-//const store = createStore(reducer, initialState);
+//ACTIONS
+
+// ACTIONS CONSTANTS
+
+const ADD_USER = "ADD USER";
+const ADD_TASK = "ADD TASK";
+
+//action creator
+
+const addUser = (user) => ({ type: ADD_USER, payload: user });
+const addTask = (task) => ({ type: ADD_TASK, payload: task });
+
+// const reducer = (state = initialState, action) => {
+//   switch (action.type) {
+//     case ADD_USER: {
+//       return {
+//         ...state,
+//         users: [...state.users, action.payload]
+//       };
+//     }
+//     case ADD_TASK: {
+//       return {
+//         ...state,
+//         tasks: [...state.tasks, action.payload]
+//       };
+//     }
+//     default: {
+//       return state;
+//     }
+//   }
+// };
+
+// const store = createStore(reducer);
+
+//now if you donot want to have in the above way, you can simply go by seggregating one reducer
+//into multiple as shown below.
+
+const userReducer = (users = initialState.users, action) => {
+  console.log("--action--user--", action);
+  if (action.type === ADD_USER) {
+    return [...users, action.payload];
+  }
+  return users;
+};
+const taskReducer = (tasks = initialState.tasks, action) => {
+  console.log("--action--task--", action);
+  if (action.type === ADD_TASK) {
+    return [...tasks, action.payload];
+  }
+  return tasks;
+};
+
+//now we use combineReducers to combine both users and tasks.
+
+const reducer = combineReducers({ users: userReducer, tasks: taskReducer });
+
 const store = createStore(reducer);
 
-//console.log(store.getState());
-
-//END subscription code that executes whenever the store gets updated,this we use in our components.
-//like action selectors in ngrx
-const subscriber = () => console.log("SUBSCRIBER", store.getState());
-
-//The end function we map to store.
-store.subscribe(subscriber);
-
-//long notation - this we can make it shorthand using bindActionCreators
-// store.dispatch(increment());
-// store.dispatch(increment());
-// store.dispatch(add(100));
-//now you will be seeing console.logs twice with values.
-
-//bindActionCreators - similar to compose, they replace store.dispatch.
-const actions = bindActionCreators({ increment, add }, store.dispatch);
-//quite equivalent to
-// const [add,increment] = [add,increment].map(fn=>compose(store.dispatch,fn));
-console.log(actions);
-//now we can call them in the below way
-actions.add(1000);
-actions.increment();
 console.log(store.getState());
-//store.subscribe(subscriber);
+//we still have the same initial state structure even tough we have seggregated
+//state object into two reducers.
+//NOTE - although we seggregate the reducers, due to this combineReducers we will have every
+//action flowing through every reducer, meaning when we call ADD_TASK action, it will hit
+//both userReducer and taskReducer. Likewise
+//when we call ADD_USER, it will hit userReducer and taskReducer.
+//with this we can utlize the values of tasks inside users and viceversa.
+//this was the main reason our final state has a combined result of both
+//users and tasks. isn't it great... combineReducer => combineActions => combineState.
+
+//so wherever you are in the application just call one action and update the state
+//accordingly in any reducer whereever you want.
+// products update and then it should reflect in cart reducer viceversa.
