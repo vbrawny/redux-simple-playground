@@ -59,14 +59,14 @@ const addTask = (task) => ({ type: ADD_TASK, payload: task });
 //into multiple as shown below.
 
 const userReducer = (users = initialState.users, action) => {
-  console.log("--action--user--", action);
+  //console.log("--action--user--", action);
   if (action.type === ADD_USER) {
     return [...users, action.payload];
   }
   return users;
 };
 const taskReducer = (tasks = initialState.tasks, action) => {
-  console.log("--action--task--", action);
+  //console.log("--action--task--", action);
   if (action.type === ADD_TASK) {
     return [...tasks, action.payload];
   }
@@ -77,19 +77,46 @@ const taskReducer = (tasks = initialState.tasks, action) => {
 
 const reducer = combineReducers({ users: userReducer, tasks: taskReducer });
 
-const store = createStore(reducer);
+//segement, datadog
 
+const logMiddleware = (store) => (next) => (action) => {
+  console.log("old state", store.getState(), action);
+  //here we can have http
+  next(action);
+  console.log("new state", store.getState(), action);
+};
+
+const monitorMiddleware = (store) => (next) => (action) => {
+  /*
+  middleware gives us a place to inspect the flow of the actions
+  we can modify the actions,change or replace them and dispatch new actions
+  if we didnot call next to action based on some kind of conditional, 
+  it would never make it to rest of the middleware or the reducer.
+  
+  sometimes this is what we want like useEffect case in ngrx- calling http and taking that result to 
+  dispatch new action.
+
+  we rely on someone dispatch a function,we donot want to make it all the way to reducer
+  we wanna go make that AJAX request, do whatever, wait for the promise to resolve 
+  get that result and then turn that into the action that goes to rest of the chain
+  """""-----Middle ware is the place to do that---------------"""""""
+  """""---------use effect scenario ---------------- from ngrx ---------------"""""
+  
+  */
+  const start = performance.now();
+  //next(action);
+  //commenting this out will not update the state - store.dispatch(addUser({ id: 4, name: "venky" }));
+  //so next(action) is always necessary to move further.
+  next(action);
+  const end = performance.now();
+  const diff = end - start;
+  console.log("--diff--", diff);
+};
+
+//best example for applyMiddleware - http - reduxthunk
+const store = createStore(
+  reducer,
+  applyMiddleware(logMiddleware, monitorMiddleware)
+);
+store.dispatch(addUser({ id: 4, name: "venky" }));
 console.log(store.getState());
-//we still have the same initial state structure even tough we have seggregated
-//state object into two reducers.
-//NOTE - although we seggregate the reducers, due to this combineReducers we will have every
-//action flowing through every reducer, meaning when we call ADD_TASK action, it will hit
-//both userReducer and taskReducer. Likewise
-//when we call ADD_USER, it will hit userReducer and taskReducer.
-//with this we can utlize the values of tasks inside users and viceversa.
-//this was the main reason our final state has a combined result of both
-//users and tasks. isn't it great... combineReducer => combineActions => combineState.
-
-//so wherever you are in the application just call one action and update the state
-//accordingly in any reducer whereever you want.
-// products update and then it should reflect in cart reducer viceversa.
