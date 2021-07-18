@@ -32,9 +32,10 @@ const ADD = "ADD";
 const add = (amount) => ({ type: ADD, payload: amount });
 
 //REDUCER
+
 const reducer = (state = initialState, action) => {
   if (action.type === INCREMENT) {
-    return { value: state.value + 1 };
+    return { value: state["value"] + 1 };
   }
   if (action.type === ADD) {
     return { value: state.value + action.payload };
@@ -42,6 +43,11 @@ const reducer = (state = initialState, action) => {
 };
 
 //STORE
-const store = createStore();
+//one option to pass initial state here
+//const store = createStore(reducer, initialState);
+const store = createStore(reducer);
 
-console.log(store);
+store.dispatch(increment());
+store.dispatch(increment());
+
+console.log(store.getState());
