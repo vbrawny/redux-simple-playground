@@ -25,11 +25,19 @@ const initialState = { value: 0 };
 // };
 const INCREMENT = "INCREMENT";
 const incrementAction = { type: INCREMENT };
+//ACTION ActionCreator
+const increment = () => ({ type: INCREMENT });
+
+const ADD = "ADD";
+const add = (amount) => ({ type: ADD, payload: amount });
 
 //REDUCER
 const reducer = (state = initialState, action) => {
   if (action.type === INCREMENT) {
-    return { state: state.valye + 1 };
+    return { value: state.value + 1 };
+  }
+  if (action.type === ADD) {
+    return { value: state.value + action.payload };
   }
 };
 
