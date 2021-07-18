@@ -11,10 +11,27 @@ import {
 const initialState = { value: 0 };
 
 //ACTION - flux standard actions
-const incrmentAction = { type: "INCREMENT" };
+//redux toolkit
+//const incrementAction = { type: "counter/increment" };
+// //what if i do a spelling mistake
+// const incrementAction = { type: "INCREMENT" };
+
+// //REDUCER
+// const reducer = (state = initialState, action) => {
+//   //what if i do a spelling mistake
+//   if (action.type === "INCREMENT") {
+//     return { state: state.valye + 1 };
+//   }
+// };
+const INCREMENT = "INCREMENT";
+const incrementAction = { type: INCREMENT };
 
 //REDUCER
-const reducer = (state = initialState, action) => state;
+const reducer = (state = initialState, action) => {
+  if (action.type === INCREMENT) {
+    return { state: state.valye + 1 };
+  }
+};
 
 //STORE
 const store = createStore();
