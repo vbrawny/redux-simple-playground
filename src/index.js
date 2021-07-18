@@ -8,88 +8,29 @@ import {
   combineReducers
 } from "redux";
 
-//INITIAL STATE
-const initialState = {
-  users: [
-    { id: 1, name: "cristiano" },
-    { id: 2, name: "neymaar" },
-    { id: 3, name: "messi" }
-  ],
-  tasks: [
-    { title: "file the tps reports" },
-    { title: "order more energy drinks" }
-  ]
+//---- in this we will learn about Enhancers also called Store Enhancers --//
+const reducer = (state) => state;
+
+//syntax - createStore(reducer,initialState,storeEnhancer)
+const store = createStore(reducer, () => {});
+
+//Enhancer - if we wanted to add additional functionality to a reducer, we do
+//through a enhancer.
+
+//enhancer will first allows whatever needs to be done with store then gets
+//an instance of it then works on top of that store state and then do whatever
+//is mentioned within it(within enhancer) then sends out the enhanced one.
+//since it is working on top of existing reducer, we called it as an enhancer.
+
+//best example is redux dev store.
+
+//apply middleware is an enhancer.
+
+//let say we wanted to monitor whatever is happening in the above redux store.
+
+//enhancer = (its function with params reducer,initialState,enhancer) wrapped by
+// another function createStore.
+//as we already discussed enhancer works ontop of create store function result.
+const monitorEnhancer = (createStore) => (reducer, initialState, enhancer) => {
+  return createStore(reducer, initialState, enhancer);
 };
-
-//ACTIONS
-
-// ACTIONS CONSTANTS
-
-const ADD_USER = "ADD USER";
-const ADD_TASK = "ADD TASK";
-
-//action creator
-
-const addUser = (user) => ({ type: ADD_USER, payload: user });
-const addTask = (task) => ({ type: ADD_TASK, payload: task });
-
-// const reducer = (state = initialState, action) => {
-//   switch (action.type) {
-//     case ADD_USER: {
-//       return {
-//         ...state,
-//         users: [...state.users, action.payload]
-//       };
-//     }
-//     case ADD_TASK: {
-//       return {
-//         ...state,
-//         tasks: [...state.tasks, action.payload]
-//       };
-//     }
-//     default: {
-//       return state;
-//     }
-//   }
-// };
-
-// const store = createStore(reducer);
-
-//now if you donot want to have in the above way, you can simply go by seggregating one reducer
-//into multiple as shown below.
-
-const userReducer = (users = initialState.users, action) => {
-  console.log("--action--user--", action);
-  if (action.type === ADD_USER) {
-    return [...users, action.payload];
-  }
-  return users;
-};
-const taskReducer = (tasks = initialState.tasks, action) => {
-  console.log("--action--task--", action);
-  if (action.type === ADD_TASK) {
-    return [...tasks, action.payload];
-  }
-  return tasks;
-};
-
-//now we use combineReducers to combine both users and tasks.
-
-const reducer = combineReducers({ users: userReducer, tasks: taskReducer });
-
-const store = createStore(reducer);
-
-console.log(store.getState());
-//we still have the same initial state structure even tough we have seggregated
-//state object into two reducers.
-//NOTE - although we seggregate the reducers, due to this combineReducers we will have every
-//action flowing through every reducer, meaning when we call ADD_TASK action, it will hit
-//both userReducer and taskReducer. Likewise
-//when we call ADD_USER, it will hit userReducer and taskReducer.
-//with this we can utlize the values of tasks inside users and viceversa.
-//this was the main reason our final state has a combined result of both
-//users and tasks. isn't it great... combineReducer => combineActions => combineState.
-
-//so wherever you are in the application just call one action and update the state
-//accordingly in any reducer whereever you want.
-// products update and then it should reflect in cart reducer viceversa.
