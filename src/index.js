@@ -47,7 +47,28 @@ const reducer = (state = initialState, action) => {
 //const store = createStore(reducer, initialState);
 const store = createStore(reducer);
 
-store.dispatch(increment());
-store.dispatch(increment());
+//console.log(store.getState());
 
+//END subscription code that executes whenever the store gets updated,this we use in our components.
+//like action selectors in ngrx
+const subscriber = () => console.log("SUBSCRIBER", store.getState());
+
+//The end function we map to store.
+store.subscribe(subscriber);
+
+//long notation - this we can make it shorthand using bindActionCreators
+// store.dispatch(increment());
+// store.dispatch(increment());
+// store.dispatch(add(100));
+//now you will be seeing console.logs twice with values.
+
+//bindActionCreators - similar to compose, they replace store.dispatch.
+const actions = bindActionCreators({ increment, add }, store.dispatch);
+//quite equivalent to
+// const [add,increment] = [add,increment].map(fn=>compose(store.dispatch,fn));
+console.log(actions);
+//now we can call them in the below way
+actions.add(1000);
+actions.increment();
 console.log(store.getState());
+//store.subscribe(subscriber);
