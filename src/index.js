@@ -7,19 +7,16 @@ import {
   bindActionCreators
 } from "redux";
 
-const makeLouder = (string) => string.toUpperCase();
+//INITIAL STATE
+const initialState = { value: 0 };
 
-const repeatThreeTimes = (string) => string.repeat(3);
+//ACTION - flux standard actions
+const incrmentAction = { type: "INCREMENT" };
 
-const bolden = (string) => string.bold();
+//REDUCER
+const reducer = (state = initialState, action) => state;
 
-// const makeLouderRepeatThreeTimesAndEmbolden = (string) =>
-//   bolden(repeatThreeTimes(makeLouder(string)));
+//STORE
+const store = createStore();
 
-const makeLouderRepeatThreeTimesAndEmbolden = compose(
-  bolden,
-  repeatThreeTimes,
-  makeLouder
-);
-
-console.log(makeLouderRepeatThreeTimesAndEmbolden("hello"));
+console.log(store);
